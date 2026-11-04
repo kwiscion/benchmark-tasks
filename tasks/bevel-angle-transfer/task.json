@@ -17,5 +17,5 @@
   "reset_notes": "Clear ink and temporal scoring state. Restore the fixed layout, loose tool poses and +10° initial blade angle. Use zero layout jitter and seed 0. Clean or replace the board for physical reproduction.",
   "fidelity": "The stock and blade form a floating rigid articulation with a passive hinge. Static friction is 0.010 N·m, dynamic friction is 0.008 N·m and the viscous coefficient is 0.001 N·m·s/rad. A constant zero-speed angular damper adds 0.010 N·m·s/degree (0.572958 N·m·s/rad), capped at 0.10 N·m, with zero stiffness and no authored angle target. PhysX PGS uses minimum position and velocity iteration counts of 64 and 16. Tools move through physical contacts, with pose and hinge writes confined to reset. The scorer reconstructs capture, retention and guidance from measured poses and contacts. Marker-blade force is diagnostic. Rigid nib-board contacts generate geometric ink, with fluid ink, nib wear and compliance, wood deformation and fine roughness simplified away. The scripted controller uses measured simulator tool poses. Dream receives camera and joint observations.",
   "scores": "Dream-1 beta run: 0.0 in 2,400 control steps. Scripted demo: 1.0 in 1,834 control steps.",
-  "media": ""
+  "media": "M-6KCFQS"
 }

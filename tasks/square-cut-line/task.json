@@ -16,5 +16,5 @@
   "reset_notes": "Simulation: reset restores both arms and tools and clears all ink; use object_jitter=0 and seed0. Physical reproduction: replace or clean the board without changing its dimensions or pose, restore the square and marker to the shown starting fixtures, and verify that no old marks remain in the scored area.",
   "fidelity": "Rigid board, compound square, long-nose marker and holder are simulated with PhysX. Only measured marker-board contact localized at the physical nib creates a visible2 mm trace. Ink flow, tip compliance/wear, wood deformation and smearing are not modeled. Guide use is determined from measured tool geometry rather than a required lateral friction force. The scripted feasibility demonstration uses privileged measured tool-pose feedback but commands only ordinary robot joints and grippers; it never attaches or teleports the tools. Dream-1 receives cameras and joint state only. The demo continues after first reaching full score to retract the tools for an unobstructed view; scoring is unchanged.",
   "scores": "Dream-1 beta full run:0.0 (2, 400 steps, no runtime errors); scripted pose-feedback demonstrations:1.0 and1.0; hover negative control:0.0 with zero ink contacts.",
-  "media": ""
+  "media": "M-6RZPKD"
 }

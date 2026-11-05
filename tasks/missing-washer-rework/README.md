@@ -3,7 +3,7 @@
 A capped fixture is missing a spacer washer. Compare it with the complete reference,
 remove and park its cap, insert the washer over the white post, replace the cap, and
 release both hands. The fixed simulated YAM setup has three full-score scripted
-passes and a genuine Dream-1 evaluation scoring 0.0. No media has been uploaded.
+passes and a genuine Dream-1 evaluation scoring 0.0. The recorded media is uploaded as `M-YPMRWZ`.
 
 ## Recorded results
 

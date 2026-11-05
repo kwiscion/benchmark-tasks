@@ -16,5 +16,5 @@
   "reset_notes": "Restore all authored rigid poses, zero velocities and robot READY state; no consumed materials.",
   "fidelity": "Lightweight rigid printed parts use 22 mm square openings around an 18 mm post (2 mm side clearance). Ordinary box-collider contact guides centering; no snapping or assembly constraints are used. PhysX PGS global minimum and per-body iterations are 64/16, verified at startup. Threads, elastic retention, wear and tightening are absent. The disclosed demo uses measured object poses; Dream receives only calibrated cameras and joint state. No hardware validation is claimed.",
   "scores": "Dream-1 beta: 0.0 (2,400 steps); scripted demonstration: 1.0 (1,396 steps). Two additional consecutive reset demonstrations: 1.0 and 1.0 (1,396 and 1,439 steps).",
-  "media": ""
+  "media": "M-YPMRWZ"
 }

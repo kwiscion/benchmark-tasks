@@ -12,7 +12,7 @@ All lengths are metres, masses kg; world +x points forward across the table, +y 
 - The oak-appearance table has size `(1.10,1.30,.060)`, centre `(.360,0,.7175)`, top **z=.7475**. The pinned station supplies robot geometry, lights, cameras and default contact materials.
 - The carrier is a **free floating rigid link, mass .250**, initially at `(.280,0,.7555)`. Nominal fully docked root is `(.475,0,.7555)`; measured containment determines the score.
 - The crossbar is a second rigid link, **mass .040**, connected by an unpowered y-prismatic joint. Its link origin relative to the carrier is `(0,q,.022)`, same rotation. Initially **q=+.050**, joint limits **[-.055,+.055]**.
-- The dock is fixed/kinematic at `(.4825,0,.7900)`, nominal bounding size `(.225,.170,.085)`, authored mass 1.0. Free inner volume: **x=.380..585, y=Â±.075, z=.7475..8225**. The table is its floor.
+- The dock is fixed/kinematic at `(.4825,0,.7900)`, nominal bounding size `(.225,.170,.085)`, authored mass 1.0. Free inner volume: **x=.380..585, y=+/-.075, z=.7475..8225**. The table is its floor.
 
 Each row below is one box collider; centres are in the corresponding link frame.
 
@@ -36,9 +36,9 @@ Each row below is one box collider; centres are in the corresponding link frame.
 
 The final 12 mm roof strips have world-x centres **.386,.420,.495,.579**. Their windows expose the orange link. Blue/orange/grey are visual cues. Printed-polymer-like rigid surrogates are intended, but elasticity, wear, fabrication tolerances and material contact coefficients are uncalibrated. Box contact offset=.0005 and rest offset=0. Self-collision within the carrier/crossbar articulation is disabled. The ideal joint supplies captivity; the two guide cheeks illustrate the slide, not a complete manufacturable captive-guide mechanism. A physical rebuild requires an actual captive guide and independent safety/feasibility verification.
 
-White noncolliding cues: carrier depth witness size `(.006,.024,.0004)` at `(-.095,0,.0083)`; centre bands `(.045,.008,.0004)` at `(Â±.055,0,.0083)`; edge bands `(.165,.004,.0004)` at `(0,Â±.067,.0084)`; crossbar grip band `(.0205,.007,.0004)` at `(0,0,.0383)`.
+White noncolliding cues: carrier depth witness size `(.006,.024,.0004)` at `(-.095,0,.0083)`; centre bands `(.045,.008,.0004)` at `(+/-.055,0,.0083)`; edge bands `(.165,.004,.0004)` at `(0,+/-.067,.0084)`; crossbar grip band `(.0205,.007,.0004)` at `(0,0,.0383)`.
 
-Physics: **PGS, 64 position / 16 velocity iterations**. Joint drive stiffness=0, target velocity=0, damping=.50 NÂ·s/m, maximum force=.40 N. Authored joint static/dynamic friction efforts=.15/.10 N, viscous coefficient=.05. Runtime verifies floating base, one joint, solver, joint limits, zero stiffness, .50 damping, .40 effort limit and .15 reported friction. Dynamic/viscous friction are authored properties, not a physical friction fit. No powered position target, snap, latch, attachment or episode-time object-pose correction is used.
+Physics: **PGS, 64 position / 16 velocity iterations**. Joint drive stiffness=0, target velocity=0, damping=.50 N*s/m, maximum force=.40 N. Authored joint static/dynamic friction efforts=.15/.10 N, viscous coefficient=.05. Runtime verifies floating base, one joint, solver, joint limits, zero stiffness, .50 damping, .40 effort limit and .15 reported friction. Dynamic/viscous friction are authored properties, not a physical friction fit. No powered position target, snap, latch, attachment or episode-time object-pose correction is used.
 
 ## Numeric grading
 

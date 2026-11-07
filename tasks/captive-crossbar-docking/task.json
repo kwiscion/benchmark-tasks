@@ -16,5 +16,5 @@
   "reset_notes": "No consumables. Reset open robot arms/action buffers, free root to (.280,0,.7555), identity rotation, slide to +.050 and object velocities to zero; clear scorer/hold/controller/trace state and settle. Repeated reset purges prior contacts using .20 m temporary staging clearance and .10 s free dynamics before fresh placement, only before the first scored observation. Runtime logs and verifies measured settled reset; fixed dock stays in place.",
   "fidelity": "Rigid box compounds and ideal passive captive prismatic joint; zero stiffness, damping/friction and finite limits, no latch or episode pose writes. Guide cheeks omit real captive-guide internals. Printed-polymer-like materials uncalibrated. PGS64/16; roof windows expose bar. RGB640x360 resized320x176 at20Hz; demo has privileged poses, Dream does not. Fixed-layout simulation feasibility only; physical rebuild and precise camera-only control unproven.",
   "scores": "Dream-1 run: 0.0 (1600 steps); demo: 1.0 (799 steps); two consecutive reset-validation trials: 1.0 each.",
-  "media": ""
+  "media": "M-GUMKQ9"
 }

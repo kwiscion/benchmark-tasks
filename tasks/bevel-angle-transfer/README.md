@@ -31,7 +31,7 @@ Score the transfer from one continuous video and the finished line from one over
 | Score | Conditions |
 | --- | --- |
 | 0 | The transfer is invalid or incomplete. |
-| 0.25 | Fit the stock and blade to both reference faces with at most 3 mm of gap at each end of each mating span. The blade gripper visibly opens and clears the blade before the gauge leaves the fixture. Carry the gauge by the stock without dragging, setting it down, regrasping or readjusting. Seat the stock within 3 mm of the board edge, with the blade flat on the board (at most 3 mm of visible gap). The stock-to-blade angles at capture and board placement differ by at most 2°. |
+| 0.25 | Fit the stock and blade to both reference faces with at most 3 mm of gap at each end of each mating span. The blade gripper visibly opens and clears the blade before the gauge leaves the fixture. Lift and carry the gauge by the stock without dragging or readjusting the blade. The stock may be regrasped, and the gauge may rest on the table during transfer. Seat the stock within 3 mm of the board edge, with the blade flat on the board (at most 3 mm of visible gap). The stock-to-blade angles at capture and board placement differ by at most 2°. |
 | 0.5 | Complete the transfer and use the seated blade to guide the marker. The line comes within 5 mm of the red tick centre, covers at least 70 mm projected across the 140 mm board width, stays within 5 mm perpendicular to the target centreline and has internal gaps of at most 5 mm. |
 | 1.0 | Complete the transfer and use the seated blade to guide the marker. The line comes within 3 mm of the tick centre, covers at least 126 mm across the board width, stays within 3 mm of the target centreline and has internal gaps of at most 3 mm. Finish with at least 5 mm of clearance from the nib tip to the board surface. |
 
@@ -61,7 +61,7 @@ inspect-robots run --embodiment bevel_angle_transfer --policy bevel_angle_transf
   --grader none --no-prompt --no-rerun --no-rerun-save --log-dir outputs/demo/logs
 ```
 
-The demonstration replays a fixed 1,897-step, 20 Hz joint/gripper program without reading observations, tool poses, contact forces or scorer flags. Its actions were calibrated in the 2026-11-12 development run; their provenance and checksum are packaged with the program. A fresh run with `demo_observations=false` reached 1.0 under the revised scorer. The historical feedback controller is separately registered as `bevel_angle_transfer_feedback` for development only, with `-P mode=demo|mechanism|hover -E demo_observations=true`. A valid transfer with hovering may earn 0.25 but must produce no ink.
+The demonstration replays a fixed 1,897-step, 20 Hz joint/gripper program without reading observations, tool poses, contact forces or scorer flags. Its actions were calibrated in the 2026-11-12 development run; their provenance and checksum are packaged with the program. The recorded run used `demo_observations=false` and scores 1.0 when its full physics trace is replayed under the current scorer. The historical feedback controller is separately registered as `bevel_angle_transfer_feedback` for development only, with `-P mode=demo|mechanism|hover -E demo_observations=true`. A valid transfer with hovering may earn 0.25 but must produce no ink.
 
 For Dream-1, configure the Dream Labs API credential privately, then run the following in the same environment. The recorded evaluation wrapped this command with a persistent API request budget.
 
@@ -87,24 +87,26 @@ The native top camera renders at twice the adapter's default width and height, w
 
 ## Validation status
 
-Verified on 2026-11-12, fixed layout, seed 0:
+Recorded on 2026-11-12, fixed layout, seed 0. Both complete traces were rescored on CPU on 2026-11-15.
 
 | Evaluation | Score | Control steps | Simulated control time | Wrapper wall time |
 | --- | ---: | ---: | ---: | ---: |
 | Fixed joint-action demonstration, no simulator feedback | 1.0 | 1,897 | 94.85 s | 930 s |
 | Dream-1 beta | 0.0 | 2,400 | 120 s | 1,158 s |
 
-Both runs used `demo_observations=false`. They ran concurrently on one L40S; wall times include startup and shared-resource execution. The demo marked 136.97 mm of the 140 mm width, reached the tick, had no internal gap, a maximum template offset of 2.52 mm and maximum line width of 2.34 mm. It finished with the marker clear and zero transfer invalidations. Dream made no ink and completed no valid transfer. Its 95 SDK calls included 45 handled expiry notices; the evaluation completed normally.
+Both runs used `demo_observations=false`. They ran concurrently on one L40S; wall times include startup and shared-resource execution. The demo marked 136.97 mm of the 140 mm width, reached the tick, had no internal gap, a maximum template offset of 2.52 mm and maximum line width of 2.34 mm. It finished with 84.04 mm of clearance from the lowest point of the nib to the board plane and zero transfer invalidations. Dream made no ink and completed no valid transfer. Its 95 SDK calls included 45 handled expiry notices; the evaluation completed normally.
 
-Both complete measurement traces independently regraded to exactly the exported scores and ink histories on the VM and on a separate Windows CPU. All 63 automated tests passed. They cover the physical scoring boundaries, invalid captures/carries, freehand marks, small contact-boundary noise, replay integrity, robot geometry, and a fixed demo that cannot read observations.
+The original exports passed strict regrading with their recording source. The current scorer reconstructed each recorded sample from measured poses and contacts. Both trials reproduced every saved metric, ink stroke and per-sample scoring flag. Dream reached no full score at any control step. Media ID `M-BQ6BH2` is the original recording of these trials. The scorer update leaves the physics, scene, cameras and action policies unchanged.
+
+All 69 automated tests passed. They cover stock regrasp and temporary set-down, retained angle and seated marking, dragging, unsupported release and the 5 mm final clearance boundary.
 
 ```bash
 python -m pytest -q
 ```
 
-Implementation revision: `b257d06a6571d68b156ea146279366b39229cf9b0f5197700e4538cb1028decc`.
+Recording source revision `b257d06a6571d68b156ea146279366b39229cf9b0f5197700e4538cb1028decc`. Replay source revision `64c30b2e74e66823434ff5268c51c7cf73930bb6600eb884d4d29fb93b44b64c`.
 
-This establishes fixed-layout simulated feasibility. The physical judging procedure has not been tested on hardware. This revision's media has not been uploaded; `task.json.media` remains empty until the new recordings are uploaded.
+This establishes fixed-layout simulated feasibility. The physical judging procedure has not been tested on hardware. The set-down and regrasp cases were exercised with synthetic pose traces.
 
 ### Historical results
 

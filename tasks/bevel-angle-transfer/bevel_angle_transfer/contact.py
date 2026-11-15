@@ -119,21 +119,21 @@ def contact_gate(force, point, marker_pose, board_pose, *,
     )
 
 
-def lift_gate(marker_pose, board_pose, quiet_s, *, nib_local=(0, 0, -.05),
-              nib_radius=.002, board_size=(.14, .18, .016), clear_s=0.0):
-    """Measure final nib clearance from the board."""
+def lift_gate(marker_pose, board_pose, *, nib_local=(0, 0, -.05),
+              nib_radius=.002, board_size=(.14, .18, .016)):
+    """Check for 5 mm from the lowest nib point to the plane of the board."""
     marker, board = np.asarray(marker_pose, float), np.asarray(board_pose, float)
     if (marker.shape != (7,) or board.shape != (7,)
-            or not np.isfinite(marker).all() or not np.isfinite(board).all()):
-        return False, {"nib_clearance": None, "ink_quiet_s": None, "lift_clear_s": None}
+            or not np.isfinite(marker).all() or not np.isfinite(board).all()
+):
+        return False, {"nib_clearance": None}
     try:
         nib_w = marker[:3]+rotation_xyzw(marker[3:]) @ np.asarray(nib_local)
         nib_b = rotation_xyzw(board[3:]).T @ (nib_w-board[:3])
     except ValueError:
-        return False, {"nib_clearance": None, "ink_quiet_s": float(quiet_s), "lift_clear_s": float(clear_s)}
+        return False, {"nib_clearance": None}
     clearance = float(nib_b[2]-nib_radius-board_size[2]/2)
-    return bool(clearance >= .005-1e-9), dict(
-        nib_clearance=clearance, ink_quiet_s=float(quiet_s), lift_clear_s=float(clear_s))
+    return bool(clearance >= .005-1e-9), {"nib_clearance": clearance}
 
 
 def target_endpoints(config=DEFAULT_CONFIG):
@@ -263,11 +263,14 @@ def blade_recontacted(record, blade, config=DEFAULT_CONFIG):
 
 
 def stock_carried(record, stock, config=DEFAULT_CONFIG):
-    """Check that both jaws remain closed on the stock during carry."""
-    if record.get("left_gripper_open") is not False:
-        return False
-    gaps = _measured_finger_gaps(record, "left", stock, (((0., 0., 0.), config.STOCK_SIZE),))
-    return gaps is not None and max(gaps) <= config.FINGER_CLEARANCE
+    """Check that at least one gripper is closed on the stock."""
+    parts = (((0., 0., 0.), config.STOCK_SIZE),)
+    for side in ("left", "right"):
+        if record.get(f"{side}_gripper_open") is False:
+            gaps = _measured_finger_gaps(record, side, stock, parts)
+            if gaps is not None and max(gaps) <= config.FINGER_CLEARANCE:
+                return True
+    return False
 
 
 def _part_ground_clearance(frame, center, size, config):

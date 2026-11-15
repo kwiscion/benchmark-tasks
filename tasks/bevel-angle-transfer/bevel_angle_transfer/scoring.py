@@ -287,12 +287,12 @@ class TransferTracker:
         self._stroke = None
         self._stroke_guided = False
         self._unguided_bounds = None
-        self._capture_angle = self._capture_origin = None
-        self._release_origin = None
+        self._capture_angle = None
+        self._grounded_origin = None
         self._closed_at_fixture = False
         self._placement_angle = None
         self._release = self._transfer = False
-        self._airborne = self._transported = False
+        self._transported = False
         self._angle = self._adjustment = None
         self._initial_angle = None
         self._invalidations = self._captures = 0
@@ -306,10 +306,10 @@ class TransferTracker:
     def _invalidate(self):
         if self._capture_angle is not None:
             self._invalidations += 1
-        self._capture_angle = self._capture_origin = None
-        self._release_origin = None
+        self._capture_angle = None
+        self._grounded_origin = None
         self._closed_at_fixture = False
-        self._release = self._transfer = self._airborne = self._transported = False
+        self._release = self._transfer = self._transported = False
 
     def _finish_stroke(self):
         if self._stroke is not None and not self._stroke_guided:
@@ -346,9 +346,10 @@ class TransferTracker:
         if self._angle is None:
             self._invalidate()
             return
+        if self._release and blade_recontacted(record, blade, config):
+            self._invalidate()
+            return
         if self._transfer:
-            if blade_recontacted(record, blade, config):
-                self._invalidate()
             return
 
         if not self._release:
@@ -368,32 +369,37 @@ class TransferTracker:
                 if self._capture_angle is None:
                     self._captures += 1
                 self._capture_angle = self._angle
-                self._capture_origin = stock[0].copy()
             self._release = (grounded and self._capture_angle is not None and self._closed_at_fixture
                              and blade_released(record, blade, config))
             if self._release:
-                self._release_origin = stock[0].copy()
+                self._grounded_origin = stock[0][:2].copy()
             return
 
-        if not stock_carried(record, stock, config) or blade_recontacted(record, blade, config):
-            self._invalidate()
-            return
         airborne = gauge_ground_clearance(stock, blade, config) > .001
-        if airborne:
-            self._airborne = True
-            clearance = stock_ground_clearance(stock, config)
-            stock_at_table = (stock[0]-[0., 0., clearance], stock[1])
-            self._transported |= not stock_at_fixture(stock_at_table, reference_stock, config)
-        if self._transported and board_placement(stock, blade, board, config)[0]:
-            self._placement_angle = self._angle
-            if angle_difference(self._angle, self._capture_angle) <= config.RETENTION_ANGLE_DEG+_EPS:
-                self._transfer = True
-            else:
+        placed = self._transported and board_placement(stock, blade, board, config)[0]
+        if not airborne or placed:
+            # Keep one anchor per touchdown to detect cumulative sliding while
+            # allowing the stock to rest and the grippers to change their grip.
+            if self._grounded_origin is None:
+                self._grounded_origin = stock[0][:2].copy()
+            if np.linalg.norm(stock[0][:2]-self._grounded_origin) > config.FIT_GAP+_EPS:
                 self._invalidate()
+                return
+            if placed:
+                self._placement_angle = self._angle
+                if angle_difference(self._angle, self._capture_angle) <= config.RETENTION_ANGLE_DEG+_EPS:
+                    self._transfer = True
+                else:
+                    self._invalidate()
             return
-        if not airborne and (self._airborne
-                             or np.linalg.norm((stock[0]-self._release_origin)[:2]) > config.FIT_GAP+_EPS):
+
+        if not stock_carried(record, stock, config):
             self._invalidate()
+            return
+        self._grounded_origin = None
+        clearance = stock_ground_clearance(stock, config)
+        stock_at_table = (stock[0]-[0., 0., clearance], stock[1])
+        self._transported |= not stock_at_fixture(stock_at_table, reference_stock, config)
 
     def sample(self, raw):
         """Add a consecutive physics observation and report observable evidence."""
@@ -466,10 +472,9 @@ class TransferTracker:
         geometry = self._geometry_cache
         lifted, lift = False, {"nib_clearance": None}
         if self.tick:
-            lifted, details = lift_gate(self._marker, self._board, 0.,
-                                        nib_local=config.MARKER_NIB_LOCAL, nib_radius=config.MARKER_NIB_RADIUS,
-                                        board_size=config.BOARD_SIZE)
-            lift = {"nib_clearance": details["nib_clearance"]}
+            lifted, lift = lift_gate(self._marker, self._board,
+                                     nib_local=config.MARKER_NIB_LOCAL, nib_radius=config.MARKER_NIB_RADIUS,
+                                     board_size=config.BOARD_SIZE)
         marker_guidance = (self._nib_count > 0 and not self._guidance_failed
                            and (self._stroke is None or self._stroke_guided))
         score = 0.

@@ -5,14 +5,14 @@ Record one continuous video with the reference fixture, carry and marking visibl
 ## Transfer
 
 1. At the reference fixture, the stock face and the blade edge must fit their respective reference faces. Check the gap at both ends of each mating span. All four gaps must be at most 3 mm. Note the angle between the stock and blade.
-2. While the gauge is still at the fixture, the blade gripper must visibly open and clear the blade and tab before the gauge leaves. The robot must lift and carry the gauge by the stock, with the gauge clear of intervening surfaces. Dragging, setting down during the carry, regrasping or readjusting the blade invalidates the transfer.
+2. While the gauge is still at the fixture, the blade gripper must visibly open and clear the blade and tab before the gauge leaves. The robot must lift and carry the gauge by the stock, with the gauge clear of intervening surfaces. The robot may temporarily set the gauge down on the table and regrasp the stock. Dragging the gauge or bringing the withdrawn blade gripper back to the blade or tab invalidates the transfer.
 3. At board placement, the stock face must sit within 3 mm of the near edge across its overlap with the board, with the blade flat on the board (at most 3 mm of visible gap). Compare the stock-to-blade angle at placement with the angle at capture, using the same end of the stock and the same blade edge in both views. The difference must be at most 2°.
 
 A failed transfer scores 0. A valid transfer earns 0.25 even if the marking does not qualify for a higher score.
 
 ## Line
 
-Use the video to confirm the blade guided the marker with the stock seated against the board. Check the finished ink on the overhead photo or directly on the board. Exclude the preprinted red tick from the ink measurements.
+Use the video to confirm the blade guided the marker with the stock seated against the board. Check the finished ink on the overhead photo or directly on the board. Exclude the preprinted red tick from the ink measurements. After the marker stops, use a ruler or a 5 mm spacer in a side view to check the perpendicular gap from the nib's lowest point to the plane of the board surface, extending that plane if the marker finishes past the edge.
 
 | Check | 0.5 | 1.0 |
 | --- | ---: | ---: |

@@ -120,6 +120,15 @@ def test_release_placement_marking_and_final_clearance_have_distinct_scores():
     assert result["marked_coverage"] >= .126
 
 
+@pytest.mark.parametrize(("clearance_mm", "expected_score"), [(4.999, .5), (5., 1.), (5.001, 1.)])
+def test_full_credit_requires_five_mm_of_final_nib_clearance(clearance_mm, expected_score):
+    final = observe(stock=SEAT)
+    final["marker_pose"][2] = CFG.BOARD_TOP - CFG.MARKER_NIB_LOCAL[2] + CFG.MARKER_NIB_RADIUS + clearance_mm/1000.
+    result = grade(fit()+transfer()+line()+lift()+[final])
+    assert result["nib_clearance"] == pytest.approx(clearance_mm/1000.)
+    assert result["score"] == expected_score
+
+
 def test_open_fingers_must_withdraw_before_leaving_the_fixture():
     near_tab = dict(observe(clear=False), right_gripper_open=True, right_gripper_opening=1.)
     assert not blade_released(near_tab, pose(near_tab["blade_pose"]))
@@ -147,14 +156,13 @@ def test_withdrawal_preserves_the_previous_fit_while_stock_remains_at_fixture():
     assert not grade(fit()+[away, withdrawing])["released"]
 
 
-def test_airborne_carry_rejects_dragging_dropping_and_stock_release():
+def test_airborne_carry_rejects_dragging_and_unsupported_release():
     released, lifted, above_board, seated = transfer()
     between = (.208, .18, .7655)
     slid = observe(stock=(CAPTURE[0], CAPTURE[1]+.020, CAPTURE[2]))
     assert grade(fit()+[released, slid, lifted, above_board, seated])["score"] == 0.
     assert grade(fit()+[released, observe(stock=between), seated])["score"] == 0.
     assert grade(fit()+[released, lifted, seated])["score"] == 0.
-    assert grade(fit()+[released, lifted, observe(stock=between), above_board, seated])["score"] == 0.
     assert grade(fit()+[released, dict(lifted, left_gripper_open=True, left_gripper_opening=1.), above_board, seated])["score"] == 0.
     unsupported = dict(lifted, left_finger_poses=[yaw_pose([.3, 0., 1.])]*2)
     assert grade(fit()+[released, unsupported, above_board, seated])["score"] == 0.
@@ -165,13 +173,50 @@ def test_airborne_carry_rejects_dragging_dropping_and_stock_release():
     assert grade(fit()+[released, lifted, diagonal, above_table_seated])["score"] == .25
 
 
+def release_stock(sample):
+    return dict(sample, left_gripper_open=True, left_gripper_opening=1.,
+                left_finger_poses=[yaw_pose([.3, 0., 1.])]*2)
+
+
+def test_stock_setdown_and_regrasp_preserve_full_credit():
+    released, lifted, above_board, seated = transfer()
+    paused = observe(stock=(.208, .18, .7655))
+    regrasped = dict(paused, left_finger_poses=[
+        yaw_pose([x, .15, .7755]) for x in (.196, .220)
+    ])
+    carry = [released, release_stock(released), lifted,
+             paused, release_stock(paused), regrasped, above_board, release_stock(seated)]
+    assert grade(fit()+carry)["score"] == .25
+    result = grade(fit()+carry+line()+lift())
+    assert result["score"] == 1.
+    assert result["capture_count"] == 1
+    assert result["retention_invalidations"] == 0
+    assert grade(fit()+carry[:-1]+[observe(stock=SEAT, angle=ANGLE+2.01)])["score"] == 0.
+
+
+def test_stock_can_be_picked_up_by_the_other_gripper_after_setdown():
+    released, lifted, above_board, seated = transfer()
+    paused = observe(stock=(.208, .18, .7655))
+    right_hold = dict(release_stock(above_board), right_gripper_open=False, right_gripper_opening=.2,
+                      right_finger_poses=above_board["left_finger_poses"])
+    assert grade(fit()+[released, lifted, paused, release_stock(paused),
+                       right_hold, seated]+line()+lift())["score"] == 1.
+
+
+def test_grounded_motion_is_measured_from_touchdown_across_small_slides():
+    released, lifted, above_board, seated = transfer()
+    sliding = [observe(stock=(.208, .18+offset, .7655)) for offset in (0., -.002, -.004)]
+    assert grade(fit()+[released, lifted]+sliding+[above_board, seated])["score"] == 0.
+
+
 def test_dragging_blade_invalidates_carry_even_while_stock_is_raised():
     released, lifted, above_board, seated = transfer()
     sample = pitch_gauge(observe(stock=(.208, .18, .793)), 20.)
     stock, blade = pose(sample["stock_pose"]), pose(sample["blade_pose"])
     assert stock_ground_clearance(stock) > .001
     assert gauge_ground_clearance(stock, blade) < 0.
-    assert grade(fit()+[released, lifted, sample, above_board, seated])["score"] == 0.
+    slides = pitch_gauge(observe(stock=(.208, .17, .793)), 20.)
+    assert grade(fit()+[released, lifted, sample, slides, above_board, seated])["score"] == 0.
 
 
 def test_comparison_uses_only_fit_and_board_placement_angles():
